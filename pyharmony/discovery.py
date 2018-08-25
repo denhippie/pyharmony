@@ -49,7 +49,7 @@ class Discovery:
             pairs[key_value[0]] = key_value[1]
         return pairs
 
-    def discover(self, scan_attempts, scan_interval):
+    def discover(self, scan_attempts, scan_interval, broadcast_ip):
         # https://ruslanspivak.com/lsbaws-part1/
         listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -79,7 +79,7 @@ class Discovery:
         for scan in range(0, scan_attempts):
             try:
                 logger.debug('Pinging network on port %s', PORT_TO_ANNOUNCE)
-                ping_sock.sendto(MESSAGE, ('255.255.255.255', 5224))
+                ping_sock.sendto(MESSAGE, (broadcast_ip, 5224))
             except Exception as e:
                 logger.error('Error pinging network: %s', e)
 
@@ -94,7 +94,7 @@ class Discovery:
         return [hubs[h] for h in hubs]
 
 
-def discover(scan_attempts=10, scan_interval=1):
+def discover(scan_attempts=10, scan_interval=1, broadcast_ip='255.255.255.255'):
     """Creates a Harmony client and initializes session.
 
     Args:
@@ -104,4 +104,4 @@ def discover(scan_attempts=10, scan_interval=1):
     Returns:
         A list of Hub devices found and their configs
     """
-    return Discovery().discover(scan_attempts, scan_interval)
+    return Discovery().discover(scan_attempts, scan_interval, broadcast_ip)
